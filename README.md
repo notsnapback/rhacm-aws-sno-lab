@@ -4,23 +4,26 @@ In this lab we will setup a Single Node Openshift Cluster in AWS which will serv
 
 ## Topology
 
-We deploy a **Single-Node OpenShift (SNO)** cluster into a **custom VPC** which is create via Terraform. We then install **RHACM** on that cluster to act as the hub. Networking is split across **public** and **private** subnets, with **one NAT Gateway per AZ** for egress from private subnets.
+We deploy a **Single-Node OpenShift (SNO)** cluster into a **custom VPC** which is created via Terraform. We then install **RHACM** on that cluster to act as the hub. Networking is split across **public** and **private** subnets, with **one NAT Gateway per AZ** for egress from private subnets.
 
 VPC (e.g., 10.0.0.0/16)
 Attributes: enableDnsSupport = true, enableDnsHostnames = true
 
 [ Public subnets ] (one per AZ used)
-• Route → Internet Gateway (IGW)
-• NAT Gateway in each public subnet (each with its own Elastic IP)
-• Hosts public-facing load balancers if you choose a “public” cluster
+
+- Route → Internet Gateway (IGW)
+- NAT Gateway in each public subnet (each with its own Elastic IP)
+- Hosts public-facing load balancers if you choose a “public” cluster
 
 [ Private subnets ] (one per AZ used; SNO lives here)
-• Route → NAT Gateway in the same AZ
-• SNO EC2 instance (control plane + workloads)
-• Internal load balancers if you choose a “private” cluster
+
+- Route → NAT Gateway in the same AZ
+- SNO EC2 instance (control plane + workloads)
+- Internal load balancers if you choose a “private” cluster
 
 [ Optional VPC Endpoints ]
-• S3, EC2, ECR, STS, ELB, etc. (reduce NAT traffic / keep AWS API traffic private)
+
+- S3, EC2, ECR, STS, ELB, etc. (reduce NAT traffic / keep AWS API traffic private)
 
 ### What runs where
 
@@ -58,7 +61,7 @@ We use the Terraform files included in this lab to create the Custom VPC
 
 ## Create DNS with Route 53 (public zone)
 
-_Why_: OpenShift needs public DNS names such as `api.<cluster>.<domain>` and `*.apps.<cluster>.<domain>`. The installer will create those records **inside a Route 53 hosted zone** for your domain, you just need to set up the domain (and zone) in your AWS account.
+OpenShift needs public DNS names such as `api.<cluster>.<domain>` and `*.apps.<cluster>.<domain>`. The installer will create those records **inside a Route 53 hosted zone** for your domain, you just need to set up the domain (and zone) in your AWS account.
 
 > Based on the workflow described in Red Hat’s article: https://developers.redhat.com/articles/2024/04/29/how-install-single-node-openshift-aws?utm_source=chatgpt.com#creating_the_iam_user
 
@@ -98,7 +101,7 @@ aws route53 list-hosted-zones
 
 Even though your AWS account has an admin user, it’s best practice to create a **separate, least-privilege IAM user (or role)** for the OpenShift install and day-to-day cluster operations. Using a dedicated identity isolates credentials, makes key rotation/revocation safer, and gives you clearer **CloudTrail** audit trails for what the cluster changes in your AWS account.
 
-Create an IAM user with **programmatic access** and attach the required policies for OpenShift, or use an **IAM role** that you assume via STS if your org uses AWS SSO. Store the access keys in your local environment or a secrets manager—**never in Git**.
+Create an IAM user with **programmatic access** and attach the required policies for OpenShift, or use an **IAM role** that you assume via STS. Store the access keys in your local environment or a secrets manager—**never in Git**.
 
 ### OPTION A
 
@@ -136,6 +139,8 @@ Then run `terraform apply`
 
 This VM is your **workstation in the lab**—the place you’ll run the `oc` and `openshift-install` commands. You can reuse the **PXE server Vagrantfile** from the previous PXE OpenShift lab.
 
+https://github.com/notsnapback/openshift-sno-pxe-vagrant-lab/tree/main?tab=readme-ov-file
+
 > This is optional and you can pick a different Admin Host or Workstation if you please. The reason I've decided to include the PXE server vm as an option is so you can use the preexisting oc tool in order to import the SNO cluster you created in the previous lab. It's not mandatory but it does make things more convenient. Please refer to the previous labs for creating the VM.
 
 ## SSH key pair creation
@@ -159,12 +164,9 @@ cat ${HOME}/.ssh/ocp4-aws-key.pub
 
 ## Installing the OCP client and the installation program
 
-If you're using the PXE Server VM from prefvious labs you should alread have the OpenShift tools. If not run the following commands:
+If you're using the PXE Server VM from previous labs you should already have the OpenShift tools. If not run the following commands:
 
 ```bash
-# Create an SSH key for cluster access (public key goes into install-config.yaml)
-ssh-keygen
-
 # Download client + installer (RHEL9 builds)
 wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-install-rhel9-amd64.tar.gz
 wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux-amd64-rhel9.tar.gz
@@ -192,7 +194,7 @@ cd /root/acm-lab
 vim install-config.yaml
 ```
 
-Create the install-config.yaml file and include the following
+Create the install-config.yaml file and include the following:
 
 ```yaml
 additionalTrustBundlePolicy: Proxyonly
@@ -240,7 +242,7 @@ sshKey: |
 
 `<BASE_DOMAIN>` — the domain in your Route 53 hosted zone (e.g., acmdemo.com).
 
-`<CLUSTER_NAME>` — short, DNS-safe name (e.g., `sno-hub`), becomes sno-hub.acmdemo.com.
+`<CLUSTER_NAME>` — short, DNS-safe name (e.g., `sno-hub` becomes `sno-hub.acmdemo.com`).
 
 `<MACHINE_CIDR>` — your VPC CIDR, or a subnet inside it (e.g., `10.0.0.0/16`).
 
@@ -402,7 +404,7 @@ Use these steps to register the target cluster as a ManagedCluster in your RHACM
 
 1. Create a namespace and the corresponding ManagedCluster definition. (run these commands on the hub cluster)
 
-> make sure you're loggine into your hub cluster
+> make sure you're logged into your hub cluster
 
 ```bash
 oc login
@@ -455,7 +457,7 @@ oc get secret ${CLUSTER_NAME}-import -n ${CLUSTER_NAME} \
   -o jsonpath='{.data.import\.yaml}' | base64 --decode > import.yaml
 ```
 
-## Apply on the Managed Cluster
+## Apply the manifests on the Managed Cluster
 
 Log in to the managed cluster and apply the manifests:
 
