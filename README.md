@@ -481,4 +481,4 @@ Next, check from the hub cluster that the imported cluster has successfully regi
 oc get managedcluster ${CLUSTER_NAME}
 ```
 
-The you're done. Best of luck! :)
+Then you're done. Best of luck! :)
