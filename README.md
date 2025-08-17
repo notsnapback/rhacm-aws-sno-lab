@@ -4,7 +4,7 @@ In this lab we will setup a Single Node Openshift Cluster in AWS which will serv
 
 ## Topology
 
-![alt text](images/OpenShift_VPC.png)
+![alt text](images/OpenShift_AWS_VPC.png)
 
 From: https://github.com/openshift/installer/blob/main/docs/user/aws/install_upi.md
 
