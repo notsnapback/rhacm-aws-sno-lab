@@ -6,6 +6,8 @@ In this lab we will setup a Single Node Openshift Cluster in AWS which will serv
 
 ![alt text](images/OpenShift_AWS_VPC.png)
 
+> This lab doesn't include an S3 VPC Endpoint
+
 From: https://github.com/openshift/installer/blob/main/docs/user/aws/install_upi.md
 
 We deploy a **Single-Node OpenShift (SNO)** cluster into a **custom VPC** which is created via Terraform. We then install **RHACM** on that cluster to act as the hub. Networking is split across **public** and **private** subnets, with **one NAT Gateway per AZ** for egress from private subnets.
