@@ -121,8 +121,8 @@ Edit these files/vars:
      }
      ```
 
-     • To create more public subnets, you can **uncomment** the other subnets and/or add more lines for even more subnets
-     • Index **0** is the first AZ in your region, **1** is the second, and so on.
+     - To create more public subnets, you can **uncomment** the other subnets and/or add more lines for even more subnets
+     - Index **0** is the first AZ in your region, **1** is the second, and so on.
 
    - **Private subnets**
      ```hcl
@@ -134,7 +134,7 @@ Edit these files/vars:
        }
      }
      ```
-     • Create a **matching private subnet** for each public subnet (same index) if you want a public+private pair per AZ (typical for `publish: External`).
+     - Create a **matching private subnet** for each public subnet (same index) if you want a public+private pair per AZ (typical for `publish: External`).
 
 4. **NAT/EIP costs (important)**
    Your `main.tf` creates an **EIP and NAT Gateway for each public subnet**:
