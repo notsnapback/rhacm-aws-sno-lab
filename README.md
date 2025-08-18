@@ -401,6 +401,36 @@ sshKey: |
 openshift-install-fips create cluster --dir=/root/acm-lab --log-level=debug
 ```
 
+> **Important**: If you're sshed into your Workstation, the session could timeout before the installation finishes. in order to avoid this you could create a tmux session that'll persist even if your ssh session times out.
+
+To create the tmux session follow the steps below:
+
+Create the new session:
+
+```bash
+tmux new -s openshift-install
+```
+
+List your tmux sessions:
+
+```bash
+tmux ls
+```
+
+Attach to the tmux session:
+
+```bash
+tmux a
+```
+
+While within the session run the install command:
+
+```bash
+openshift-install-fips create cluster --dir=/root/acm-lab --log-level=debug
+```
+
+> To detach from a tmux session hold `Ctrl`, press `b`, release, then press `d` (while inside tmux)
+
 ## Post-Install Steps
 
 When the installation finishes, the installer will provide you the kubeadmin user and the password along with your OpenShift Web Console URL. Note them down.
