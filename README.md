@@ -67,6 +67,104 @@ We use the Terraform files included in this lab to create the Custom VPC
 
 # Install single node OpenShift on AWS
 
+## Create the VPC via Terraform
+
+This module builds an **existing VPC layout** that OpenShift expects:
+
+- a VPC with DNS **enabled**
+- **public + private** subnets in 1–3 AZs
+- an **Internet Gateway** for the public subnets
+- **NAT Gateway(s)** for the private subnets
+- route tables + routes
+- handy outputs: **VPC ID** and **subnet IDs** to paste into `install-config.yaml`
+
+> ⚠️ **Costs**: NAT Gateways and Elastic IPs incur hourly + data charges. For labs, you can use a **single NAT** to save cost.
+
+### Use the terraform files in the `terraform/openshift_vpc` directory
+
+#### Fill in the placeholders with your own values
+
+Edit these files/vars:
+
+1. **`providers.tf` → AWS region**
+
+   - It’s hard-coded to `us-east-2`:
+     ```hcl
+     provider "aws" { region = "us-east-2" }
+     ```
+   - Change this if you want a different region (e.g., `us-east-1`).
+
+2. **`variables.tf` → VPC name and CIDR**
+
+   - `vpc_name` — used for resource **tags** (not an AWS “VPC Name” object).
+     ```hcl
+     variable "vpc_name" { default = "openshift_vpc" }
+     ```
+   - `vpc_cidr` — the VPC CIDR (must contain your `machineNetwork.cidr` from `install-config.yaml`).
+     ```hcl
+     variable "vpc_cidr" { default = "10.0.0.0/16" }
+     ```
+
+3. **`variables.tf` → Which subnets to create (per-AZ)**
+   The module defines **maps** where the **key is a label** you choose and the **value is an AZ index** (0-based) into
+   `data.aws_availability_zones.available.names`.
+
+   - **Public subnets**
+
+     ```hcl
+     variable "public_subnets" {
+       default = {
+         "public_subnet_1" = 0
+         # "public_subnet_2" = 1
+         # "public_subnet_3" = 2
+       }
+     }
+     ```
+
+     • To create more public subnets, you can **uncomment** the other subnets and/or add more lines for even more subnets
+     • Index **0** is the first AZ in your region, **1** is the second, and so on.
+
+   - **Private subnets**
+     ```hcl
+     variable "private_subnets" {
+       default = {
+         "private_subnet_1" = 0
+         # "private_subnet_2" = 1
+         # "private_subnet_3" = 2
+       }
+     }
+     ```
+     • Create a **matching private subnet** for each public subnet (same index) if you want a public+private pair per AZ (typical for `publish: External`).
+
+4. **NAT/EIP costs (important)**
+   Your `main.tf` creates an **EIP and NAT Gateway for each public subnet**:
+
+   ```hcl
+   resource "aws_eip" "nat_gateway_eip" { for_each = aws_subnet.public_subnets ... }
+   resource "aws_nat_gateway" "nat_gateway" { for_each = aws_subnet.public_subnets ... }
+   ```
+
+   > That means one NAT per AZ. Great for HA, but it costs more. Keep only one public + private pair (index 0) in labs if you want to minimize spend.
+
+#### Run a `terraform apply` on those files
+
+#### Grab the outputs for the subnet ids
+
+```bash
+terraform output
+```
+
+#### Place the ids into the `install-config.yaml` file:
+
+```yaml
+platform:
+  aws:
+    region: us-east-1
+    subnets:
+      - <PUBLIC_SUBNET_ID>
+      - <PRIVATE_SUBNET_ID>
+```
+
 ## Create DNS with Route 53 (public zone)
 
 OpenShift needs public DNS names such as `api.<cluster>.<domain>` and `*.apps.<cluster>.<domain>`. The installer will create those records **inside a Route 53 hosted zone** for your domain, you just need to set up the domain (and zone) in your AWS account.
@@ -113,12 +211,19 @@ Create an IAM user with **programmatic access** and attach the required policies
 
 ### OPTION A
 
-Run the following terraform commands on the `.tf` files in the `openshift_prereqs` directory
+Run the following terraform commands on the `.tf` files in the `terraform/openshift_prereqs` directory:
 
 ```bash
 terraform init
 terraform plan
 terraform apply
+```
+
+Get the access key values for the admin user you created:
+
+```bash
+teraform output
+terraform output -raw os_admin_secret_key
 ```
 
 ### OPTION B (if you don’t have an “admin” group):
