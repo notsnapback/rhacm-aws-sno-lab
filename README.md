@@ -492,3 +492,13 @@ oc get managedcluster ${CLUSTER_NAME}
 ```
 
 Then you're done. Best of luck! :)
+
+## References & Additional Informarion:
+
+https://developers.redhat.com/articles/2024/04/29/how-install-single-node-openshift-aws?utm_source=chatgpt.com#video_demo
+
+https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html/install/installing#installing-from-the-cli
+
+https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.5/html/multicluster_engine/importing-a-cluster
+
+https://github.com/openshift/installer/blob/main/docs/user/aws/install_upi.md
