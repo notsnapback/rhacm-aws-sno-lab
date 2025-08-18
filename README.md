@@ -219,7 +219,7 @@ terraform plan
 terraform apply
 ```
 
-Get the access key values for the admin user you created:
+Get the access key values for the admin user you created (save these for later):
 
 ```bash
 teraform output
@@ -255,6 +255,34 @@ This VM is your **workstation in the lab**—the place you’ll run the `oc` and
 https://github.com/notsnapback/openshift-sno-pxe-vagrant-lab/tree/main?tab=readme-ov-file
 
 > This is optional and you can pick a different Admin Host or Workstation if you please. The reason I've decided to include the PXE server vm as an option is so you can use the preexisting oc tool in order to import the SNO cluster you created in the previous lab. It's not mandatory but it does make things more convenient. Please refer to the previous labs for creating the VM.
+
+## Installing the AWS CLI
+
+The installer will use the credentials from the IAM identity you created earlier to create your OpenShift cluster in AWS. In order to authenticate the VM with the IAM identity follow the steps below to install the AWS CLI:
+
+> Make sure that fapolicyd (File Access Policy Daemon) is disabled before installing the AWS CLI."The File Access Policy Daemon, fapolicyd, is a service that can be used to help protect a system by limiting which applications have permission to run" - Oracle's Docs. The protection that fapolicyd offers can interfere with the installation process of the AWS CLI. To disable it run the following below:
+
+```bash
+systemctl stop fapolicyd
+systemctl disable fapolicyd
+```
+
+> Oracle's Documenation on fapolicyd: https://docs.oracle.com/en/operating-systems/oracle-linux/8/fapolicyd/fapolicyd-About.html
+
+Run the following commands to install the AWS CLI:
+
+```bash
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+```
+
+To authenticate with the IAM identity you created earlier run the command below and fill in the `Access Key ID`, `Secret Access Key`, `region`, and `output format`:
+
+```bash
+aws configure
+```
 
 ## SSH key pair creation
 
@@ -370,7 +398,7 @@ sshKey: |
 ### Run the installation command
 
 ```bash
-openshift-install create cluster --dir=/root/acm-lab --log-level=debug
+openshift-install-fips create cluster --dir=/root/acm-lab --log-level=debug
 ```
 
 ## Post-Install Steps
