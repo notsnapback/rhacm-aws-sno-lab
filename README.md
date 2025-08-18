@@ -2,6 +2,8 @@
 
 In this lab we will setup a Single Node Openshift Cluster in AWS which will serve as our RHACM (Red Hat Advanced Cluster Management) hub
 
+![alt text](images/dashboard.png)
+
 ## Topology
 
 ![alt text](images/OpenShift_AWS_VPC.png)
