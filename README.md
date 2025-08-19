@@ -230,19 +230,19 @@ terraform output -raw os_admin_secret_key
 
 Create one and attach the AdministratorAccess policy (lab/demo use only). Replace the data source in the main.tf file with this:
 
-```bash
+```hcl
 resource "aws_iam_group" "admin" {
-name = "admin"
+  name = "admin"
 }
 
 resource "aws_iam_group_policy_attachment" "admin_attach" {
-group = aws_iam_group.admin.name
-policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  group = aws_iam_group.admin.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 resource "aws_iam_user_group_membership" "admin_membership" {
-user = aws_iam_user.os_admin.name
-groups = [aws_iam_group.admin.name]
+  user = aws_iam_user.os_admin.name
+  groups = [aws_iam_group.admin.name]
 }
 ```
 
@@ -491,7 +491,7 @@ vim operatorgroup.yaml
 
 Insert the following:
 
-```bash
+```yaml
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
@@ -516,7 +516,7 @@ vim subscription.yaml
 
 Insert the following:
 
-```bash
+```yaml
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
@@ -525,7 +525,7 @@ metadata:
 spec:
   sourceNamespace: openshift-marketplace
   source: redhat-operators
-  channel: release-2.x        # e.g., release-2.14
+  channel: release-2.x # e.g., release-2.14
   installPlanApproval: Automatic
   name: advanced-cluster-management
 ```
@@ -544,7 +544,7 @@ vim mch.yaml
 
 Insert the following:
 
-```bash
+```yaml
 apiVersion: operator.open-cluster-management.io/v1
 kind: MultiClusterHub
 metadata:
@@ -619,7 +619,7 @@ vim managed-cluster.yaml
 
 Insert the following:
 
-```bash
+```yaml
 apiVersion: cluster.open-cluster-management.io/v1
 kind: ManagedCluster
 metadata:
