@@ -567,6 +567,27 @@ oc apply -f mch.yaml
 oc get mch -o yaml
 ```
 
+## Access the RHACM (ACM) Console
+
+You can open ACM either **inside the OpenShift web console** (plug-in view) or via the **direct console route**.
+
+### Option A — From the OpenShift console
+
+1. Open the OpenShift web console and use the **cluster switcher** (top bar).
+
+2. Choose **All Clusters** to enter the ACM views. Choose **local-cluster** to go back to the regular OpenShift views.
+
+![alt text](images/image-3.png)
+
+### Option B — Direct URL (ACM route)
+
+Get the `multicloud-console` route and open it in a browser:
+
+```bash
+# Replace with your install namespace if different
+oc get route multicloud-console -n open-cluster-management -o jsonpath='{.spec.host}{"\n"}'
+```
+
 # Importing a cluster into RHACM
 
 Use these steps to register the target cluster as a ManagedCluster in your RHACM hub and to install the klusterlet agents.
@@ -665,3 +686,5 @@ https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for
 https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.5/html/multicluster_engine/importing-a-cluster
 
 https://github.com/openshift/installer/blob/main/docs/user/aws/install_upi.md
+
+https://docs.redhat.com/en/documentation/red_hat_advanced_cluster_management_for_kubernetes/2.13/html-single/web_console/index#accessing-your-console
