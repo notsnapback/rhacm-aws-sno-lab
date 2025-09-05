@@ -1,0 +1,39 @@
+additionalTrustBundlePolicy: Proxyonly
+apiVersion: v1
+baseDomain: <BASE_DOMAIN>
+compute:
+  - architecture: amd64
+    hyperthreading: Enabled
+    name: worker
+    platform: {}
+    replicas: 0
+controlPlane:
+  architecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform: {}
+  replicas: 1
+metadata:
+  creationTimestamp: null
+  name: <CLUSTER_NAME>
+networking:
+  clusterNetwork:
+    - cidr: 10.128.0.0/14
+      hostPrefix: 23
+  machineNetwork:
+    - cidr: <MACHINE_CIDR> # must match your VPC, e.g., 10.0.0.0/16
+  networkType: OVNKubernetes
+  serviceNetwork:
+    - 172.30.0.0/16
+platform:
+  aws:
+    region: <REGION> # e.g., us-east-1
+    # Provide your existing subnets. For public clusters, include ONE public + ONE private
+    # subnet in the same AZ (add more pairs to span more AZs).
+    subnets:
+      - <PUBLIC_SUBNET_ID>
+      - <PRIVATE_SUBNET_ID>
+publish: External
+pullSecret: '<YOUR_PULL_SECRET_JSON>'
+sshKey: |
+  <YOUR_SSH_PUBLIC_KEY>
